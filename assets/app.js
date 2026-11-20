@@ -1367,4 +1367,15 @@
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+
+  /* 개발·검증용 훅: ?debug=1 일 때만 노출되며 일반 사용에는 영향이 없습니다. */
+  if (/[?&]debug=1/.test(location.search)) {
+    window.__SPC_DEBUG = {
+      normalizeResult: normalizeResult,
+      renderResult: renderResult,
+      buildReport: buildReport,
+      analyze: analyze,
+      state: state
+    };
+  }
 })();
