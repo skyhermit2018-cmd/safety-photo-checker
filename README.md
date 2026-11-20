@@ -61,4 +61,28 @@ python3 -m http.server 8000
 
 ## 배포
 
-GitHub Pages, `main` 브랜치 루트를 그대로 서빙합니다. `.nojekyll`이 포함되어 있어 Jekyll 처리 없이 정적 파일이 그대로 올라갑니다.
+GitHub Pages에서 **`gh-pages` 브랜치 루트**를 소스로 서빙합니다(Free 계정·public 저장소). `main`이 작업 브랜치이므로, 내용을 고칠 때는 두 브랜치를 함께 갱신하세요.
+
+```bash
+git push origin main && git push origin main:gh-pages
+```
+
+`.nojekyll`이 포함되어 Jekyll 처리 없이 정적 파일이 그대로 올라갑니다.
+
+> Pages 소스를 `main`으로 바꾸고 싶다면 저장소 → Settings → Pages → Branch를 `main / (root)`로 한 번 저장하면 됩니다. 이후에는 `main`만 푸시해도 반영됩니다.
+
+## 검증 기록 (2026-11-20)
+
+- 배포 URL 200 OK, `index.html`·`assets/*` 모두 200 (콘텐츠 타입 정상)
+- 실제 브라우저에서: 9개 공종 칩·48개 참고 조문 렌더, 키 설정 모달 열기/제공사 전환/모델 선택, 키 저장·삭제, `localStorage` 반영 확인
+- Gemini 키 테스트: Google API에 실제 도달해 "API 키가 올바르지 않습니다"로 정상 매핑(잘못된 테스트 키 사용)
+- 사진 업로드: 1920px PNG → 1280×662·45KB JPEG로 축소·미리보기 표시
+- 판독 파이프라인: 요청 전송·오류 패널·취소·진행 상태 표시 동작
+- 결과 화면: 위험등급·위험요인·법령·조치·법령근거·확인필요 렌더, 보고용 텍스트 복사, 인쇄로 2페이지 PDF 생성(입력 카드 제외하고 결과만 출력)
+- 기록: 2건 저장·목록·다시 열기·개별 삭제·전체 삭제(확인 대화상자) 동작
+
+OpenAI 경로는 이 검증 환경(데이터센터 원격 브라우저)에서 `api.openai.com` 요청이 전송 단계에서 차단되어 실제 호출을 확인하지 못했습니다. 일반 휴대폰 네트워크에서의 확인이 필요합니다.
+
+## 개발·검증용 훅
+
+`?debug=1`로 열면 `window.__SPC_DEBUG`(`normalizeResult`, `renderResult`, `buildReport`, `addHistory`, `renderHistory`, `loadHistory`)가 노출됩니다. API 키가 실제로 없어도 결과 화면을 확인할 때 씁니다. 일반 사용에는 영향이 없습니다.

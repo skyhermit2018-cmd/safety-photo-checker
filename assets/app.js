@@ -1377,8 +1377,7 @@
       analyze: analyze,
       addHistory: addHistory,
       renderHistory: renderHistory,
-      loadHistory: loadHistory,
-      state: state
+      loadHistory: loadHistory
     };
   }
 })();
