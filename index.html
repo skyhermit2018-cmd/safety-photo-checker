@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>산업안전 사진 판독 | 위험요인·법령 위반 소지 AI 점검</title>
+<meta name="description" content="현장 사진 한 장을 올리면 AI가 추락·전기·굴착·양중·화기·밀폐공간 등의 위험요인과 산업안전보건법령 위반 소지를 조문과 함께 정리해 주는 무료 웹앱입니다. 사진은 브라우저에서 축소되고, API 키는 내 브라우저에만 저장됩니다.">
+<meta name="theme-color" content="#0b1220">
+<meta name="color-scheme" content="light">
+<meta property="og:title" content="산업안전 사진 판독">
+<meta property="og:description" content="현장 사진으로 위험요인과 법령 위반 소지를 확인하고, 보고용 텍스트로 바로 복사하세요.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1220'/%3E%3Cpath d='M32 11l16 6v13c0 11-7 18-16 22-9-4-16-11-16-22V17z' fill='none' stroke='%23f5b301' stroke-width='4' stroke-linejoin='round'/%3E%3Cpath d='M25 31l5 5 10-10' fill='none' stroke='%23f5b301' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">본문으로 바로가기</a>
+
+<header class="appbar no-print">
+  <div class="appbar-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 64 64" width="30" height="30"><path d="M32 8l18 7v15c0 12-8 20-18 25-10-5-18-13-18-25V15z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M24 31l6 6 11-12" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="brand-text">
+        <strong>산업안전 사진 판독</strong>
+        <span>현장 사진 → 위험요인 · 법령 위반 소지</span>
+      </span>
+    </div>
+    <button type="button" class="key-btn" id="btnOpenSettings" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 13.5a7.9 7.9 0 000-3l1.9-1.2-1.9-3.3-2.1.9a7.7 7.7 0 00-2.6-1.5L14.3 3h-4.6l-.4 2.4a7.7 7.7 0 00-2.6 1.5l-2.1-.9-1.9 3.3L4.6 10.5a7.9 7.9 0 000 3l-1.9 1.2 1.9 3.3 2.1-.9a7.7 7.7 0 002.6 1.5l.4 2.4h4.6l.4-2.4a7.7 7.7 0 002.6-1.5l2.1.9 1.9-3.3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      <span>API 키</span>
+      <i class="key-dot" id="keyDot" aria-hidden="true"></i>
+      <span class="sr-only" id="keyDotText">API 키가 설정되지 않았습니다</span>
+    </button>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <section class="key-notice" id="keyNotice" hidden>
+    <div class="key-notice-body">
+      <strong>AI 판독을 위해 API 키가 필요합니다</strong>
+      <p>Google Gemini <b>무료 키</b>로 바로 시작할 수 있습니다. 키는 이 브라우저에만 저장됩니다.</p>
+    </div>
+    <button type="button" class="btn btn-small" id="btnNoticeSettings">키 설정</button>
+  </section>
+
+  <noscript>
+    <p class="notice-error">이 앱은 JavaScript가 필요합니다. 브라우저에서 JavaScript를 켜 주세요.</p>
+  </noscript>
+
+  <!-- 1. 사진 -->
+  <section class="card" aria-labelledby="h-photo">
+    <div class="card-head">
+      <h2 id="h-photo"><span class="step-no">1</span> 현장 사진</h2>
+      <span class="card-note">사진 1장</span>
+    </div>
+
+    <div class="drop" id="drop">
+      <div class="drop-empty" id="dropEmpty">
+        <svg class="drop-icon" viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><rect x="4" y="11" width="40" height="29" rx="6" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="24" cy="25.5" r="8" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M17 11l3-4h8l3 4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></svg>
+        <p class="drop-title">사진을 찍거나 올려 주세요</p>
+        <p class="drop-sub">끌어다 놓기 · 붙여넣기(Ctrl+V)도 됩니다</p>
+        <div class="drop-actions">
+          <button type="button" class="btn btn-primary" id="btnCamera">카메라로 촬영</button>
+          <button type="button" class="btn btn-ghost" id="btnPick">앨범에서 선택</button>
+        </div>
+      </div>
+
+      <figure class="drop-preview" id="dropPreview" hidden>
+        <img id="previewImg" alt="업로드한 현장 사진 미리보기">
+        <figcaption class="preview-bar">
+          <span id="previewInfo">—</span>
+          <span class="preview-actions">
+            <button type="button" class="btn btn-tiny" id="btnReplace">다른 사진</button>
+            <button type="button" class="btn btn-tiny btn-danger-ghost" id="btnRemovePhoto">삭제</button>
+          </span>
+        </figcaption>
+      </figure>
+    </div>
+
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+    <input type="file" id="fileInput" accept="image/*" hidden>
+    <p class="field-hint">사진은 전송 전에 브라우저에서 최대 1280px JPEG로 줄여 전송합니다. 원본은 어디에도 저장되지 않습니다.</p>
+  </section>
+
+  <!-- 2. 공종·메모 -->
+  <section class="card" aria-labelledby="h-work">
+    <div class="card-head">
+      <h2 id="h-work"><span class="step-no">2</span> 공종 · 메모</h2>
+      <span class="card-note">선택 사항</span>
+    </div>
+
+    <div class="chips" id="chips" role="radiogroup" aria-label="공종 선택"></div>
+
+    <label class="field" for="memo">
+      <span class="field-label">현장 메모</span>
+      <textarea id="memo" rows="2" maxlength="400" placeholder="예: 3층 슬라브 단부, 오후 2시경 철근 배근 중"></textarea>
+      <span class="counter"><span id="memoCount">0</span>/400</span>
+    </label>
+  </section>
+
+  <!-- 결과 -->
+  <section class="card result" id="resultSection" aria-labelledby="h-result" hidden>
+    <div class="result-head">
+      <div class="risk-badge" id="riskBadge" data-risk=""><span class="risk-dot" aria-hidden="true"></span><span id="riskLabel">—</span></div>
+      <div class="result-meta">
+        <span id="resultTime"></span>
+        <span id="resultModel"></span>
+      </div>
+    </div>
+
+    <h2 id="h-result" class="result-title">AI 판독 결과</h2>
+    <p class="summary" id="resultSummary"></p>
+
+    <figure class="result-photo" id="resultPhotoWrap" hidden>
+      <img id="resultPhoto" alt="판독한 현장 사진">
+    </figure>
+
+    <h3 class="section-h">발견된 위험 요인 <span class="pill-count" id="findingsCount">0</span></h3>
+    <ul class="findings" id="findingsList"></ul>
+
+    <h3 class="section-h">즉시 시정 · 개선 조치</h3>
+    <ol class="action-list" id="actionsList"></ol>
+
+    <details class="legal-box" id="legalBox">
+      <summary>관련 법령 근거 <span class="pill-count" id="legalCount">0</span></summary>
+      <ul id="legalList"></ul>
+      <p class="legal-foot">법령은 개정됩니다. 인용 조문은 <a href="https://www.law.go.kr/" target="_blank" rel="noopener">국가법령정보센터</a>에서 원문을 확인하세요.</p>
+    </details>
+
+    <div class="notes-box" id="notesBox" hidden>
+      <h3>확인 필요 · 사진으로 판단할 수 없는 것</h3>
+      <p id="notesText"></p>
+    </div>
+
+    <div class="result-actions no-print">
+      <button type="button" class="btn btn-primary" id="btnCopy">보고용 텍스트 복사</button>
+      <button type="button" class="btn btn-ghost" id="btnPrint">인쇄 · PDF 저장</button>
+      <button type="button" class="btn btn-ghost" id="btnNew">새 사진으로 점검</button>
+    </div>
+
+    <p class="disclaimer">
+      AI 판독 결과는 현장 점검 참고용이며, 최종 법적 판단은 안전관리자 및 법령 원문 확인이 필요합니다.
+      사진에 담기지 않은 조건(높이, 하중, 작업계획, 교육 이력 등)은 판단에 반영되지 않았습니다.
+    </p>
+  </section>
+
+  <!-- 히스토리 -->
+  <section class="card no-print" aria-labelledby="h-history" id="historySection">
+    <div class="card-head">
+      <h2 id="h-history">최근 점검 기록</h2>
+      <button type="button" class="link-btn" id="btnClearHistory" hidden>전체 삭제</button>
+    </div>
+    <ul class="history-list" id="historyList"></ul>
+    <p class="empty-note" id="historyEmpty">아직 판독 기록이 없습니다. 사진을 올려 첫 점검을 시작해 보세요.</p>
+  </section>
+
+  <!-- 법령 참고 -->
+  <details class="card reference no-print" id="referenceBox">
+    <summary>
+      <span>자주 인용되는 안전보건 법령 참고</span>
+      <span class="card-note" id="referenceMeta"></span>
+    </summary>
+    <p class="field-hint">이 앱이 AI에게 함께 전달하는 조문 목록입니다. 시행일 기준으로 확인했으며, 개정에 따라 조문 번호가 달라질 수 있습니다.</p>
+    <div id="referenceList"></div>
+  </details>
+
+  <footer class="app-footer no-print">
+    <p><strong>산업안전 사진 판독</strong> — 정적 웹앱. 별도 서버 없이 브라우저에서만 동작합니다.</p>
+    <p>사진과 프롬프트는 판독 시 선택한 AI 제공사(Google 또는 OpenAI)로 직접 전송됩니다. API 키는 이 브라우저의 localStorage에만 저장됩니다.</p>
+  </footer>
+</main>
+
+<!-- 하단 실행 바 -->
+<div class="actionbar no-print" id="actionBar">
+  <div class="actionbar-inner">
+    <div class="actionbar-status" id="actionStatus">
+      <span class="status-text" id="statusText">사진을 선택해 주세요</span>
+      <span class="status-sub" id="statusSub"></span>
+    </div>
+    <button type="button" class="btn btn-run" id="btnAnalyze" disabled>
+      <span id="btnAnalyzeLabel">AI 판독 시작</span>
+      <span class="spinner" id="runSpinner" hidden aria-hidden="true"></span>
+    </button>
+  </div>
+  <div class="progress-line" id="progressLine" hidden><i></i></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- 설정 모달 -->
+<dialog class="modal" id="settingsModal" aria-labelledby="settingsTitle">
+  <form method="dialog" class="modal-head">
+    <h2 id="settingsTitle">AI 제공사 · API 키</h2>
+    <button type="submit" class="icon-btn" value="close" aria-label="닫기">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </form>
+
+  <div class="modal-body">
+    <p class="modal-intro">사진 판독에 사용할 AI 제공사를 고르고, 본인의 API 키를 입력하세요. <b>키는 이 브라우저(localStorage)에만 저장</b>되며, 운영자 서버나 중계 서버로 전송되지 않습니다.</p>
+
+    <div class="provider-tabs" role="tablist" aria-label="AI 제공사">
+      <button type="button" role="tab" class="provider-tab" data-provider="gemini" id="tabGemini" aria-selected="true">
+        <strong>Google Gemini</strong>
+        <span>무료 티어 사용 가능</span>
+      </button>
+      <button type="button" role="tab" class="provider-tab" data-provider="openai" id="tabOpenai" aria-selected="false">
+        <strong>OpenAI</strong>
+        <span>gpt-4o-mini · gpt-4o</span>
+      </button>
+    </div>
+
+    <div class="form-row">
+      <label class="field" for="modelSelect">
+        <span class="field-label">모델</span>
+        <select id="modelSelect"></select>
+      </label>
+    </div>
+
+    <div class="form-row">
+      <label class="field" for="keyInput">
+        <span class="field-label">API 키 <span id="keySavedState" class="field-sub"></span></span>
+        <span class="secret-wrap">
+          <input type="password" id="keyInput" autocomplete="off" spellcheck="false" placeholder="API 키를 붙여넣으세요">
+          <button type="button" class="secret-toggle" id="btnToggleKey" aria-label="키 표시">보기</button>
+        </span>
+      </label>
+      <p class="field-hint" id="keyLinkHint"></p>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="btnTestKey">키 테스트</button>
+      <button type="button" class="btn btn-primary" id="btnSaveKey">저장</button>
+      <button type="button" class="link-btn danger" id="btnDeleteKey">저장된 키 삭제</button>
+    </div>
+    <p class="test-result" id="testResult" role="status" aria-live="polite"></p>
+
+    <div class="privacy">
+      <h3>키와 사진은 어떻게 다뤄지나요?</h3>
+      <ul>
+        <li>API 키는 <b>이 브라우저의 localStorage</b>에만 저장됩니다. 앱 운영자는 키를 볼 수 없습니다.</li>
+        <li>판독할 때 사진과 프롬프트가 선택한 제공사(<b>Google</b> 또는 <b>OpenAI</b>)로 <b>브라우저에서 직접</b> 전송됩니다.</li>
+        <li>이 앱은 GitHub Pages의 정적 파일이라 <b>중계 서버가 없습니다</b>. 전송 기록은 제공사의 정책을 따릅니다.</li>
+        <li>공용 기기·타인과 함께 쓰는 폰에서는 사용 후 <b>저장된 키 삭제</b>를 눌러 주세요.</li>
+        <li>API 키는 결제 계정과 연결됩니다. 화면 캡처·공유에 키가 노출되지 않게 주의하세요.</li>
+        <li>사진에는 근로자 얼굴 등 개인정보가 담길 수 있습니다. 필요 없는 부분은 가리고 촬영하세요.</li>
+      </ul>
+    </div>
+
+    <div class="privacy">
+      <h3>키 발급 (1분)</h3>
+      <ol class="steps">
+        <li><b>Google Gemini</b>: <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com/app/apikey</a> → Google 계정으로 로그인 → <b>API 키 만들기</b> → <code>AIza…</code> 또는 <code>AQ.…</code> 키 복사</li>
+        <li><b>OpenAI</b>: <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com/api-keys</a> → 로그인 → <b>Create new secret key</b> → <code>sk-…</code> 키 복사 (선불 크레딧 필요)</li>
+        <li>복사한 키를 위 입력창에 붙여넣고 <b>키 테스트</b> → <b>저장</b></li>
+      </ol>
+      <p class="field-hint">Gemini 무료 티어는 분당·일일 요청 수 제한이 있습니다. 사진 1장 판독에 보통 수 초~수십 초가 걸립니다.</p>
+    </div>
+  </div>
+</dialog>
+
+<script src="assets/legal-data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
