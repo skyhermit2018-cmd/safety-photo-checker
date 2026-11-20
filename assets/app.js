@@ -1375,6 +1375,9 @@
       renderResult: renderResult,
       buildReport: buildReport,
       analyze: analyze,
+      addHistory: addHistory,
+      renderHistory: renderHistory,
+      loadHistory: loadHistory,
       state: state
     };
   }
