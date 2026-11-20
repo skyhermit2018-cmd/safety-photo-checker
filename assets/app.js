@@ -706,7 +706,7 @@
           toast('판독을 취소했습니다');
         }
       } else if (err instanceof TypeError || /Failed to fetch|NetworkError|Load failed/i.test(String(err && err.message))) {
-        showError('네트워크 오류로 판독하지 못했습니다', '인터넷 연결을 확인하세요. 브라우저 확장 프로그램·회사 방화벽이 요청을 막는 경우도 있습니다. 계속 실패하면 다른 네트워크(모바일 데이터)에서 시도해 보세요.');
+        showError('요청이 차단되어 판독하지 못했습니다', '네트워크 문제이거나, API 키가 거부되어 제공사가 브라우저 응답을 막은 경우(CORS)입니다. 먼저 [API 키 설정]에서 ‘키 테스트’로 키 상태를 확인하세요. 키가 정상이라면 다른 네트워크(모바일 데이터)나 다른 브라우저에서 다시 시도해 보세요.');
       } else {
         showError('판독하지 못했습니다', (err && err.message) || '알 수 없는 오류입니다. 잠시 후 다시 시도해 주세요.');
       }
@@ -1158,7 +1158,7 @@
     verifyKey(editingProvider, key).then(function (msg) {
       setTest(msg, 'ok');
     }).catch(function (err) {
-      if (err instanceof TypeError) setTest('네트워크 오류로 확인하지 못했습니다. 인터넷 연결을 확인하세요.', 'err');
+      if (err instanceof TypeError) setTest('요청이 차단되었습니다. 네트워크 또는 제공사 측 차단일 수 있습니다. 다른 네트워크에서 다시 시도해 보세요.', 'err');
       else setTest(err.message || '키를 확인하지 못했습니다.', 'err');
     }).then(function () {
       if (btn) btn.disabled = false;
